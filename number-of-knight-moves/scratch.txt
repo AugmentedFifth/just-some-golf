@@ -1,0 +1,85 @@
+import Data.List
+k x y=unlines[[toEnum$findIndices(elem(i,j))(scanl(\s _->filter(\(z,w)->z`elem`n&&w`elem`n)$(\(a,b)->[(a+c,b+d)|(c,d)<-zip [1,1,-1,-1,-2,-2,2,2] [2,-2,2,-2,1,-1,1,-1]])=<<s)[(x,y)][0..9])!!0+48|j<-n]|i<-n]where n=[0..7]
+
+
+
+[(a+c,b+d)|(c,d)<-zip [1,1,-1,-1,-2,-2,2,2] [2,-2,2,-2,1,-1,1,-1]]
+zipWith(\c d->(a+c,b+d))[1,1,-1,-1,-2,-2,2,2] [2,-2,2,-2,1,-1,1,-1]
+
+
+
+k x y=unlines[[toEnum$findIndices(elem(i,j))(scanl(\s _->filter(\(z,w)->z`elem`n&&w`elem`n)$(\(a,b)->map(\(c,d)->(a+c,b+d))$zip [1,1,-1,-1,-2,-2,2,2] [2,-2,2,-2,1,-1,1,-1])=<<s)[(x,y)][0..9])!!0+48|j<-n]|i<-n]where n=[0..7]
+
+
+
+
+
+
+k x y=unlines(map(\i->map(\j->toEnum$findIndices(elem(i,j))(scanl(\s _->filter(\(z,w)->z`elem`n&&w`elem`n)((\(a,b)->map(\(c,d)->(a+c,b+d))$zip [1,1,-1,-1,-2,-2,2,2] [2,-2,2,-2,1,-1,1,-1])=<<s))[(x,y)][0..9])!!0+48)n)n)where n=[0..7]
+
+{-
+
+k,x,y,i,j,s,z,w,a,b,c,d,
+
+
+zip [1,1,-1,-1,-2,-2,2,2] [2,-2,2,-2,1,-1,1,-1]
+
+(,)<$>[1,-1,2,-2]<*>[1,-1,2,-2]
+
+
+findIndices :: (a -> Bool) -> [a] -> Int -> [Int]
+findIndices f i (x:xs)
+    | f x = i : findIndices f i+1 xs
+    | 2>1 = findIndices f i+1 xs
+
+h _ _ []=[]
+h f i (x:l)|f x=i:h f i+1 l|2>1=h f i+1 l
+
+
+
+
+h _ _ []=-1
+h f i (x:l)|f x=i|2>1=h f i+1 l
+
+
+
+
+
+
+
+
+
+[0..7] = 6 * 4 = 24
+
+ where n=[0..7]
+n
+n
+n
+n
+
+-}
+
+
+
+
+k x y =
+    unlines [[
+        toEnum $ head $ findIndices (elem (i, j))
+            (scanl
+                (\ps _ ->
+                    filter
+                        (\(z1, z2) -> z1 `elem` n && z2 `elem` n)
+                        $
+                            (\(p1, p2) ->
+                                [(p1 + x', p2 + y') |
+                                    (x', y') <- zip [1, 1, -1, -1, -2, -2, 2, 2]
+                                                    [2, -2, 2, -2, 1, -1, 1, -1]])
+                            =<< ps
+                )
+            [(x, y)]
+            [0..9]) + 48 |
+        j <- n] |
+    i <- n]
+
+    where n = [0..7]
+
