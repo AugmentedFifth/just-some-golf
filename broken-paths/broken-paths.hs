@@ -4,8 +4,9 @@ main = print$satisfyMaxImpl [["00001000","00010000"],["00000100","00000000"]]
 rotational :: [(Int, Int)]
 rotational=zip[-1,0,1,1,1,0,-1,-1][-1,-1,-1,0,1,1,1,0]
 
+getIndex :: (Integral i, Eq a) => i -> [a] -> a -> i
 getIndex _[]_= -1
-getIndex i(e:l)x|x==e=i|1>0=getIndex l x i+1
+getIndex i(e:l)x|x==e=i|1>0=getIndex (i+1) l x
 
 l?x=getIndex 0 l x
 
@@ -36,7 +37,7 @@ implicationMx nodes =
                         ld' = (i-x,j-y)
                     in  ld/=ld'&& ('1'==thisnode!!(rotational?ld)) /= ('1'==x#y!!(rotational?ld'))
                 ]
-    in  [implications row col | [row,col] <- mapM(\x->[0..x])[dim,dim]]
+    in  [[implications row col | col <- [0..dim]] | row <- [0..dim]]
 
 
 satisfyMaxImpl :: [[String]] -> [[String]]
@@ -44,13 +45,15 @@ satisfyMaxImpl nodes
     | all(==0).concat.implicationMx $ nodes = nodes
     | 1>0 =
         let dim = length nodes-1
-            i#j = nodes!!i!!j
+            -- i#j = nodes!!i!!j
             iMx = implicationMx nodes
             cartesian = mapM(\w->[0..w])[dim,dim]
             maxImpMxCoord[x,y][a,b]|iMx!!x!!y>iMx!!a!!b=[x,y]|1>0=[a,b]
             [maxx,maxy] = foldr1 maxImpMxCoord cartesian
             locs = [[x,y]|[x,y]<-cartesian,x>maxx-2&&x<maxx+2&&y>maxy-2&&y<maxy+2]
             fix nodes'[x1,y1][x2,y2]
+                |x1==x2&&y1==y2=
+                    nodes'
                 |'1'==nodes'!!x1!!y1!!(rotational?(x2-x1,y2-y1))=
                     replaceIndex nodes' x1 (replaceIndex (nodes'!!x1) y1 (replaceIndex (nodes'!!x1!!y1) (rotational?(x2-x1,y2-y1)) '0'))
                 |'1'==nodes'!!x2!!y2!!(rotational?(x1-x2,y1-y2))=
