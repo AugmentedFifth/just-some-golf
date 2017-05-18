@@ -1,84 +1,60 @@
-main :: IO ()
-main = print$satisfyMaxImpl[["00000100","00010000","00000000"],["00000001","10000000","00010000"],["00000000","00000000","10000001"]]
-
-rotational :: [(Int, Int)]
-rotational=zip[-1,0,1,1,1,0,-1,-1][-1,-1,-1,0,1,1,1,0]
-
-getIndex :: (Integral i, Eq a) => i -> [a] -> a -> i
-getIndex _[]_= -1
-getIndex i(e:l)x|x==e=i|1>0=getIndex (i+1) l x
-
-l?x=getIndex 0 l x
-
-replaceIndex' :: Integral i => i -> [a] -> i -> a -> [a]
-replaceIndex' _ [] _ _ = []
-replaceIndex' i (e:l) t v
-    | i == t = v:l
-    | 1>0    = e:replaceIndex' (i+1) l t v
-
-replaceIndex :: Integral i => [a] -> i -> a -> [a]
-replaceIndex = replaceIndex' 0
-
-{-
-fixPaths :: [[String]] -> [[String]]
-fixPaths nodes =
-    until (\nMx -> all(==0).concat.implicationMx $ nMx) id nodes
--}
-
-implicationMx :: Integral i => [[String]] -> [[i]]
-implicationMx nodes =
-    let dim = length nodes-1
-        i#j = nodes!!i!!j
-        implications i j =
-            let thisnode = i#j
-                locs = [[x,y]|[x,y]<-mapM(\w->[0..w])[dim,dim],x>i-2&&x<i+2&&y>j-2&&y<j+2]
-            in  sum[1|[x,y]<-locs,
-                    let ld = (x-i,y-j)
-                        ld' = (i-x,j-y)
-                    in  ld/=ld'&& ('1'==thisnode!!(rotational?ld)) /= ('1'==x#y!!(rotational?ld'))
-                ]
-    in  [[implications row col | col <- [0..dim]] | row <- [0..dim]]
+-- main :: IO ()
+main = print$f[["00000100","00010000","00000000"],["00000001","10000000","00010000"],["00000000","00000000","10000001"]]
 
 
-satisfyMaxImpl :: [[String]] -> [[String]]
-satisfyMaxImpl nodes
-    | all(==0).concat.implicationMx $ nodes = nodes
-    | 1>0 =
-        let dim = length nodes-1
-            -- i#j = nodes!!i!!j
-            iMx = implicationMx nodes
-            cartesian = mapM(\w->[0..w])[dim,dim]
-            maxImpMxCoord[x,y][a,b]|iMx!!x!!y>iMx!!a!!b=[x,y]|1>0=[a,b]
-            [maxx,maxy] = foldr1 maxImpMxCoord cartesian
-            locs = [[x,y]|[x,y]<-cartesian,x>maxx-2&&x<maxx+2&&y>maxy-2&&y<maxy+2]
+-- r :: [(Int, Int)]
+r=zip[-1,0,1,1,1,0,-1,-1][-1,-1,-1,0,1,1,1,0]
+
+
+-- g :: (Integral i, Eq a) => i -> [a] -> a -> i
+g _[]_= -1
+g i(e:l)x|x==e=i|1>0=g(i+1)l x
+
+l?x=g 0 l x
+
+
+-- d :: Integral i => i -> [a] -> i -> a -> [a]
+d _[]_ _=[]
+d i(e:l)t v|i==t=v:l|1>0=e:d(i+1)l t v
+
+
+-- c :: Integral i => [a] -> i -> a -> [a]
+c=d 0
+
+-- q :: Integral i => [[String]] -> [[i]]
+
+
+f :: [[String]] -> [[String]]
+f n
+    | all(==0).concat.q$n=n
+    | 1>0=f$foldr(\p accu -> fix accu [maxx,maxy] p)n$maxx!maxy
+        where
+            dim=length n-1
+            cartesian=mapM(\w->[0..w])[dim,dim]
+            i!j=[[x,y]|[x,y]<-cartesian,x>i-2&&x<i+2&&y>j-2&&y<j+2]
+            q o=let
+                i#j=o!!i!!j
+                    in  [[sum[1|[x,y]<-row!col,
+                                    let ld=(x-row,y-col)
+                                        ld'=(row-x,col-y)
+                                    in  ld/=ld'&& ('1'==row#col!!(r?ld)) /= ('1'==x#y!!(r?ld'))
+                                ] | col <- [0..dim]] | row <- [0..dim]]
+            maxImpMxCoord[x,y][a,b]|q n!!x!!y>q n!!a!!b=[x,y]|1>0=[a,b]
+            [maxx,maxy]=foldr1 maxImpMxCoord cartesian
             fix nodes'[x1,y1][x2,y2]
                 |x1==x2&&y1==y2=
                     nodes'
-                |'1'==nodes'!!x1!!y1!!(rotational?(x2-x1,y2-y1))=
-                    replaceIndex nodes' x1 (replaceIndex (nodes'!!x1) y1 (replaceIndex (nodes'!!x1!!y1) (rotational?(x2-x1,y2-y1)) '0'))
-                |'1'==nodes'!!x2!!y2!!(rotational?(x1-x2,y1-y2))=
-                    replaceIndex nodes' x1 (replaceIndex (nodes'!!x1) y1 (replaceIndex (nodes'!!x1!!y1) (rotational?(x2-x1,y2-y1)) '1'))
+                |'1'==nodes'!!x1!!y1!!(r?(x2-x1,y2-y1))=
+                    c nodes' x1 (c (nodes'!!x1) y1 (c (nodes'!!x1!!y1) (r?(x2-x1,y2-y1)) '0'))
+                |'1'==nodes'!!x2!!y2!!(r?(x1-x2,y1-y2))=
+                    c nodes' x1 (c (nodes'!!x1) y1 (c (nodes'!!x1!!y1) (r?(x2-x1,y2-y1)) '1'))
                 |1>0=
                     nodes'
-        in  satisfyMaxImpl$foldr (\p accu -> fix accu [maxx,maxy] p) nodes locs
-
 
 {-
 
-nodes = [["00001000","00010000"],["00000100","00000000"]]
+r,g,c,d,q,n,f,
 
-dim = 2
-
-[
-    row = 0
-    [
-        col = 0
-
-        i = 0, j = 0
-        thisnode = "00001000"
-        locs = [(0,0), (0,1), (1,0), (1,1)]
-
-    ]
-]
+?,#,!,
 
 -}
