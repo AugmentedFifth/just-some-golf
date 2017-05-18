@@ -16,23 +16,31 @@ fixPaths nodes =
 
 
 implicationMx nodes =
-    let dim = length nodes
+    let dim = length nodes - 1
         i#j = nodes!!i!!j
         implications i j =
             let thisnode = i#j
-                locs = [(x,y)|(x,y)<-(,)<$>[i-1..i+1]<*>[i-1..i+1],x>=0&&y>=0&&x<dim&&y<dim]
-            in  sum[1|(x,y)<-locs,
+                locs = [[x,y]|[x,y]<-mapM(\w->[0..w])[dim,dim],x>i-2&&x<i+2&&y>j-2&&y<j+2]
+            in  sum[1|[x,y]<-locs,
                     let ld = (x-i,y-j)
                         ld' = (i-x,j-y)
                     in  ld/=ld'&& ('1'==thisnode!!(rotational?ld)) /= ('1'==x#y!!(rotational?ld'))
                 ]
-    in  [[implications row col | col <- [0..dim-1]] | row <- [0..dim-1]]
+    in  [implications row col | [row,col] <- mapM(\x->[0..x])[dim,dim]]
 
 
 satisfyMaxImpl :: [[String]] -> [[String]]
 satisfyMaxImpl nodes
-    | all(==0).concat.implicationMx $ nodes=nodes
-    | 1>0=
+    | all(==0).concat.implicationMx $ nodes = nodes
+    | 1>0 =
+        let dim = length nodes - 1
+            i#j = nodes!!i!!j
+            iMx = implicationMx nodes
+            cartesian = mapM(\w->[0..w])[dim,dim]
+            maxImpMxCoord [x,y] [a,b]|iMx!!x!!y>iMx!!a!!b=[x,y]|1>0=[a,b]
+            [maxx,maxy] = foldr1 maxImpMxCoord cartesian
+            locs = [[x,y]|[x,y]<-cartesian,x>i-2&&x<i+2&&y>j-2&&y<j+2]
+
 
 {-
 
