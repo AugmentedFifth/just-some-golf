@@ -24,42 +24,25 @@ c=d 0
 -- q :: Integral i => [[String]] -> [[i]]
 
 
-f :: [[String]] -> [[String]]
-f n
-    | all(==0).concat.q$n=n
-    | 1>0=f$foldr(\p b->s b [maxx,maxy] p)n$maxx!maxy
-        where
-            h=length n-1
-            t=[0..h]
-            e=mapM(\w->[0..w])[h,h]
-            i!j=[[x,y]|[x,y]<-e,x>i-2&&x<i+2&&y>j-2&&y<j+2]
-            q o=let
-                i#j=o!!i!!j
-                    in  [[sum[1|[x,y]<-row!col,
-                                    let ld=(x-row,y-col)
-                                        ld'=(row-x,col-y)
-                                    in  ld/=ld'&& ('1'==row#col!!(r?ld)) /= ('1'==x#y!!(r?ld'))
-                                ] | col <- t] | row <- t]
-            maxImpMxCoord[x,y][a,b]|q n!!x!!y>q n!!a!!b=[x,y]|1>0=[a,b]
-            [maxx,maxy]=foldr1 maxImpMxCoord e
-            s nodes'[x1,y1][x2,y2]
-                |x1==x2&&y1==y2=
-                    nodes'
-                |'1'==nodes'!!x1!!y1!!(r?(x2-x1,y2-y1))=
-                    z '0'
-                |'1'==nodes'!!x2!!y2!!(r?(x1-x2,y1-y2))=
-                    z '1'
-                |1>0=
-                    nodes'
-                where
-                 z char=c nodes' x1 (c (nodes'!!x1) y1 (c (nodes'!!x1!!y1) (r?(x2-x1,y2-y1)) char))
+-- f :: [[String]] -> [[String]]
+f n|all(==0).concat.q$n=n|1>0=f$foldr(\p b->s b[k,m]p)n$k!m where
+ h=length n-1
+ t=[0..h]
+ e=mapM(\w->[0..w])[h,h]
+ i!j=[[x,y]|[x,y]<-e,x>i-2&&x<i+2&&y>j-2&&y<j+2]
+ q o=let i#j=o!!i!!j in[[sum[1|[x,y]<-w!l,let
+  u=(x-w,y-l)
+  p=(w-x,l-y)in u/=p&&('1'==w#l!!(r?u))/=('1'==x#y!!(r?p))]|l<-t]|w<-t]
+ v[x,y][a,b]|q n!!x!!y>q n!!a!!b=[x,y]|1>0=[a,b]
+ [k,m]=foldr1 v e
+ s w[x,y][a,b]|x==a&&y==b=w|'1'==w!!x!!y!!(r?(a-x,b-y))=z '0'|'1'==w!!a!!b!!(r?(x-a,y-b))=z '1'|1>0=w where z u=c w x$c(w!!x)y$c(w!!x!!y)(r?(a-x,b-y))u
 
 
 
 
 {-
 
-r,g,c,d,q,n,f,t,z,b,s,h,
+r,g,c,d,q,n,f,t,z,s,h,v,
 
 ?,#,!,
 
