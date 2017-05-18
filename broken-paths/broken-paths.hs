@@ -27,33 +27,39 @@ c=d 0
 f :: [[String]] -> [[String]]
 f n
     | all(==0).concat.q$n=n
-    | 1>0=f$foldr(\p accu -> fix accu [maxx,maxy] p)n$maxx!maxy
+    | 1>0=f$foldr(\p b->s b [maxx,maxy] p)n$maxx!maxy
         where
-            dim=length n-1
-            cartesian=mapM(\w->[0..w])[dim,dim]
-            i!j=[[x,y]|[x,y]<-cartesian,x>i-2&&x<i+2&&y>j-2&&y<j+2]
+            h=length n-1
+            t=[0..h]
+            e=mapM(\w->[0..w])[h,h]
+            i!j=[[x,y]|[x,y]<-e,x>i-2&&x<i+2&&y>j-2&&y<j+2]
             q o=let
                 i#j=o!!i!!j
                     in  [[sum[1|[x,y]<-row!col,
                                     let ld=(x-row,y-col)
                                         ld'=(row-x,col-y)
                                     in  ld/=ld'&& ('1'==row#col!!(r?ld)) /= ('1'==x#y!!(r?ld'))
-                                ] | col <- [0..dim]] | row <- [0..dim]]
+                                ] | col <- t] | row <- t]
             maxImpMxCoord[x,y][a,b]|q n!!x!!y>q n!!a!!b=[x,y]|1>0=[a,b]
-            [maxx,maxy]=foldr1 maxImpMxCoord cartesian
-            fix nodes'[x1,y1][x2,y2]
+            [maxx,maxy]=foldr1 maxImpMxCoord e
+            s nodes'[x1,y1][x2,y2]
                 |x1==x2&&y1==y2=
                     nodes'
                 |'1'==nodes'!!x1!!y1!!(r?(x2-x1,y2-y1))=
-                    c nodes' x1 (c (nodes'!!x1) y1 (c (nodes'!!x1!!y1) (r?(x2-x1,y2-y1)) '0'))
+                    z '0'
                 |'1'==nodes'!!x2!!y2!!(r?(x1-x2,y1-y2))=
-                    c nodes' x1 (c (nodes'!!x1) y1 (c (nodes'!!x1!!y1) (r?(x2-x1,y2-y1)) '1'))
+                    z '1'
                 |1>0=
                     nodes'
+                where
+                 z char=c nodes' x1 (c (nodes'!!x1) y1 (c (nodes'!!x1!!y1) (r?(x2-x1,y2-y1)) char))
+
+
+
 
 {-
 
-r,g,c,d,q,n,f,
+r,g,c,d,q,n,f,t,z,b,s,h,
 
 ?,#,!,
 
